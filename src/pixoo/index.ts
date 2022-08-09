@@ -77,13 +77,10 @@ export const runPixooCommand = async () => {
     },
   ];
 
-  const commands: Command[] = [
-    command.clearPayload(),
-    imagePayload,
-    command.displayListPayload(items),
-  ];
-
-  await command.commandList(commands);
+  await command.resetSending();
+  await command.clearPayload();
+  await command.animation(imagePayload);
+  await command.displayList(items);
 
   // drawGif("yoda.gif");
 };
