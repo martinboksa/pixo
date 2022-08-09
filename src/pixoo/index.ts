@@ -1,13 +1,14 @@
 import * as command from "./commands";
 import {
+  Command,
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_DATE_WEEK_YEAR,
-  DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_HOUR_MIN_SEC,
+  DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_HOUR_MIN,
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_NET_TEXT_MESSAGE,
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_TODAY_MAX_TEMP,
 } from "./commands";
-import { ipAddress, serverUrl } from "../common/constants";
+import { serverAssetUrl, serverUrl } from "../common/constants";
 import "../common/ip";
-import { drawImage } from "./draw-image";
+import { drawImagePayload } from "./draw-image";
 
 const ids = {
   time: 2,
@@ -17,15 +18,7 @@ const ids = {
 };
 
 export const runPixooCommand = async () => {
-  console.log("[Pixoo address]", ipAddress);
-
-  await command.resetSending();
-  console.log("Picture ID reset");
-
-  await command.clear();
-  console.log("Texts area cleared");
-
-  await drawImage("vader.png", [0, 0]);
+  const imagePayload = await drawImagePayload("vader.png", [0, 0]);
 
   const items: command.DisplayItem[] = [
     {
@@ -54,7 +47,7 @@ export const runPixooCommand = async () => {
       TextWidth: 64,
       Textheight: 5,
       speed: 100,
-      type: DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_HOUR_MIN_SEC,
+      type: DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_HOUR_MIN,
     },
     {
       TextId: ids.date,
@@ -84,6 +77,13 @@ export const runPixooCommand = async () => {
     },
   ];
 
-  await command.displayList(items);
-  console.log("Items displayed");
+  const commands: Command[] = [
+    command.clearPayload(),
+    imagePayload,
+    command.displayListPayload(items),
+  ];
+
+  await command.commandList(commands);
+
+  // drawGif("yoda.gif");
 };

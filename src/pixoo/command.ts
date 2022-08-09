@@ -1,25 +1,9 @@
 import { ipAddress } from "../common/constants";
 import axios from "axios";
-import {
-  Clear,
-  DisplayList,
-  PlayBuzzer,
-  ResetSending,
-  SelectChannel,
-  SendAnimation,
-  SendingId,
-  TextCommand,
-} from "./commands";
+import { Command, CommandList } from "./commands";
+import logger from "../common/logger";
 
-type Payload =
-  | PlayBuzzer
-  | Clear
-  | DisplayList
-  | TextCommand
-  | SelectChannel
-  | SendingId
-  | ResetSending
-  | SendAnimation;
+type Payload = Command | CommandList;
 
 export type PixooGenericResponse = {
   error_code: number;
@@ -27,7 +11,7 @@ export type PixooGenericResponse = {
 
 class PixooError extends Error {
   constructor(data: PixooGenericResponse) {
-    console.error(data);
+    logger.error(data);
     super("PixooError");
   }
 }
@@ -37,6 +21,8 @@ export const command = async <T extends PixooGenericResponse>(
 ) => {
   const url = `http://${ipAddress}/post`;
   const { data } = await axios.post<T>(url, payload);
+
+  logger.info(`Command %s sent to url %s`, payload.Command, url);
 
   if (data.error_code !== 0) {
     throw new PixooError(data);

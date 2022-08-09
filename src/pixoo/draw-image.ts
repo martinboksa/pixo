@@ -2,7 +2,7 @@ import Jimp from "jimp";
 import { assetsDir, maxPixels } from "../common/constants";
 import path from "path";
 import { clampColor, RGB } from "../common/utils";
-import { animation } from "./commands";
+import { animationPayload, currentPictureId } from "./commands";
 
 const toImageBuffer = (image: Jimp) => {
   function unflattenToRGB(arr: number[], result: RGB[]): RGB[] {
@@ -48,15 +48,26 @@ async function resizeImage(
   return image.resize(size[0], size[1], method);
 }
 
-export const drawImage = async (
+export const drawImagePayload = async (
   imagePath: string,
   pos: [number, number],
   options: {
+    id?: number;
     size: 16 | 32 | 64;
     resampleMode?: ImageResampleMode;
-  } = { size: maxPixels, resampleMode: "nearestNeighbor" }
+    totalPictures: number;
+    offset: number;
+    speed: number;
+  } = {
+    size: maxPixels,
+    resampleMode: "nearestNeighbor",
+    totalPictures: 1,
+    offset: 0,
+    speed: 100,
+    id: currentPictureId,
+  }
 ) => {
-  const { size, resampleMode } = options;
+  const { size, resampleMode, offset, totalPictures, speed, id } = options;
   const buffer: RGB[] = [];
   const image = await loadImage(imagePath);
 
@@ -80,11 +91,12 @@ export const drawImage = async (
     }
   }
 
-  return animation({
+  return animationPayload({
+    PicID: id,
     PicData: Buffer.from(buffer.flat()).toString("base64"),
-    PicNum: 1,
-    PicOffset: 0,
-    PicSpeed: 100,
+    PicNum: totalPictures,
+    PicOffset: offset,
+    PicSpeed: speed,
     PicWidth: size,
   });
 };

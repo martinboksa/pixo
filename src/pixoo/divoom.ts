@@ -58,3 +58,32 @@ export const dialList = async (type: string, page = 1) => {
 
   return data;
 };
+
+export const imageUploadList = async (
+  deviceId: number,
+  mac: string,
+  page = 1
+) => {
+  const { data } = await axios.post<{
+    ReturnCode: number;
+    ReturnMessage: string;
+    ImgList: Array<{
+      FileName: string;
+      FileId: string;
+    }>;
+  }>("https://app.divoom-gz.com/Device/GetImgUploadList", {
+    DeviceId: deviceId,
+    DeviceMac: mac,
+    Page: page,
+  });
+
+  return data;
+};
+
+export const uploadListAround = async (page = 1) => {
+  const { DeviceList } = await findDevices();
+
+  return DeviceList.map((device) =>
+    imageUploadList(device.DeviceId, device.DeviceMac, page)
+  );
+};

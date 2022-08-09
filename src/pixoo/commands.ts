@@ -1,11 +1,23 @@
 import { command } from "./command";
 
+export type Command =
+  | PlayBuzzer
+  | Clear
+  | DisplayList
+  | TextCommand
+  | SelectChannel
+  | SendingId
+  | ResetSending
+  | SendAnimation
+  | CountdownCommand
+  | PlayGifCommand;
+
 /** DATA **/
-let currentPictureId = 1;
+export let currentPictureId = 0;
 
 /**
  * DOCUMENTATION
- * http://doc.divoom-gz.com/web/#/12?page_id=336
+ * http://doc.divoom-gz.com/web/#/12?page_id=89
  */
 
 /**
@@ -55,7 +67,9 @@ export type Clear = {
   Command: "Draw/ClearHttpText";
 };
 
-export const clear = () => command({ Command: "Draw/ClearHttpText" });
+export const clear = () => command(clearPayload());
+
+export const clearPayload = (): Clear => ({ Command: "Draw/ClearHttpText" });
 
 export type PlayBuzzer = {
   Command: "Device/PlayBuzzer";
@@ -69,12 +83,18 @@ export const playBuzzer = (
   offTimeInCycle: number,
   playTotalTime: number
 ) =>
-  command({
-    Command: "Device/PlayBuzzer",
-    ActiveTimeInCycle: activeTimeInCycle,
-    OffTimeInCycle: offTimeInCycle,
-    PlayTotalTime: playTotalTime,
-  });
+  command(playBuzzerPayload(activeTimeInCycle, offTimeInCycle, playTotalTime));
+
+export const playBuzzerPayload = (
+  activeTimeInCycle: number,
+  offTimeInCycle: number,
+  playTotalTime: number
+): PlayBuzzer => ({
+  Command: "Device/PlayBuzzer",
+  ActiveTimeInCycle: activeTimeInCycle,
+  OffTimeInCycle: offTimeInCycle,
+  PlayTotalTime: playTotalTime,
+});
 
 export type DisplayItem = {
   font: number; // https://app.divoom-gz.com/Device/GetTimeDialFontList
@@ -98,10 +118,12 @@ export type DisplayList = {
 };
 
 export const displayList = (items: DisplayItem[]) =>
-  command({
-    Command: "Draw/SendHttpItemList",
-    ItemList: items,
-  });
+  command(displayListPayload(items));
+
+export const displayListPayload = (items: DisplayItem[]): DisplayList => ({
+  Command: "Draw/SendHttpItemList",
+  ItemList: items,
+});
 
 export type Text = {
   TextId: number; // the text id is is unique and will be replaced with the same ID， it is samller than 20
@@ -158,11 +180,16 @@ export const selectChannel = (channel: Channel) =>
 export type ResetSending = {
   Command: "Draw/ResetHttpGifId";
 };
+
 export const resetSending = () =>
-  command({ Command: "Draw/ResetHttpGifId" }).then((data) => {
-    currentPictureId = 1;
+  command(resetSendingPayload()).then((data) => {
+    currentPictureId = 0;
     return data;
   });
+
+export const resetSendingPayload = (): ResetSending => ({
+  Command: "Draw/ResetHttpGifId",
+});
 
 export type SendingId = {
   Command: "Draw/GetHttpGifId";
@@ -195,12 +222,35 @@ export const animation = ({
 }: Omit<AnimationData, "PicID"> & { PicID?: number }) => {
   currentPictureId++;
 
-  return command({
+  return command(
+    animationPayload({
+      PicID,
+      ...data,
+    })
+  );
+};
+
+export const animationPayload = ({
+  PicID = currentPictureId,
+  ...data
+}: Omit<AnimationData, "PicID"> & { PicID?: number }): SendAnimation => {
+  return {
     Command: "Draw/SendHttpGif",
     PicID,
     ...data,
-  });
+  };
 };
+
+export type CommandList = {
+  Command: "Draw/CommandList";
+  CommandList: Command[];
+};
+
+export const commandList = (commands: Command[]) =>
+  command({
+    Command: "Draw/CommandList",
+    CommandList: commands,
+  });
 
 export const blackScreen = () =>
   animation({
@@ -210,3 +260,64 @@ export const blackScreen = () =>
     PicSpeed: 0,
     PicData: "",
   });
+
+export type CountdownCommand = {
+  Command: "Tools/SetTimer";
+} & Countdown;
+
+export type Countdown = {
+  Minute: number;
+  Second: number;
+  Status: CountdownStatus;
+};
+
+export enum CountdownStatus {
+  STOP = 0,
+  START = 1,
+}
+
+export const countdownPayload = (
+  minute: number,
+  second: number,
+  status = CountdownStatus.START
+): CountdownCommand => ({
+  Command: "Tools/SetTimer",
+  Minute: minute,
+  Second: second,
+  Status: status,
+});
+
+export const countdown = (
+  minute: number,
+  second: number,
+  status = CountdownStatus.START
+) => command(countdownPayload(minute, second, status));
+
+export type PlayGifCommand = {
+  Command: "Device/PlayTFGif";
+} & Gif;
+
+export type Gif = {
+  FileType: FileType;
+  FileName: string;
+};
+
+export enum FileType {
+  PLAY_NET_FILE = 2,
+  PLAY_TF_FOLDER = 1,
+  PLAY_TF_FILE = 0,
+}
+
+export const playGifPayload = (
+  name: string,
+  type: FileType = FileType.PLAY_NET_FILE
+): PlayGifCommand => ({
+  Command: "Device/PlayTFGif",
+  FileType: type,
+  FileName: name,
+});
+
+export const playGif = (
+  name: string,
+  type: FileType = FileType.PLAY_NET_FILE
+) => command(playGifPayload(name, type));

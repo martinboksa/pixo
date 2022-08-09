@@ -1,20 +1,19 @@
+import { Request } from "express";
+
 const { networkInterfaces } = require("os");
 
-export const getAllMyIPs = () => {
-  const nets = networkInterfaces();
-  const results = Object.create(null);
+export const readIP = (req: Request) => {
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === "IPv4" && !net.internal) {
-        if (!results[name]) {
-          results[name] = [];
-        }
-
-        results[name].push(net.address);
-      }
-    }
+  if (!ip) {
+    return undefined;
   }
+
+  if (Array.isArray(ip)) {
+    return ip[0];
+  }
+
+  return ip;
 };
 
 export const getMyIP = () => {

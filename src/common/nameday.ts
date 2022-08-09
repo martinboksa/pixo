@@ -969,15 +969,20 @@ export const namedayToday = () => {
   return namedays[month][day] || [];
 };
 
-let counter = 0;
-export const nextNameday = () => {
-  const names = namedayToday();
-  if (counter >= names.length) {
-    counter = 0;
+const counters: Record<string, number> = {};
+
+export const nextNameday = (key: string) => {
+  if (counters[key] === undefined) {
+    counters[key] = 0;
   }
 
-  const name = names[counter];
-  counter++;
+  const names = namedayToday();
+  if (counters[key] >= names.length) {
+    counters[key] = 0;
+  }
+
+  const name = names[counters[key]];
+  counters[key] = counters[key] + 1;
 
   return name || "";
 };
