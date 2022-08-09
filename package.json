@@ -1,14 +1,14 @@
 {
   "name": "pixo",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "./src/index.ts",
   "license": "MIT",
   "scripts": {
-    "send-to-pixoo": "ts-node src/pixoo/run.ts",
-    "start": "pm2 start src/server/index.ts --time",
+    "send-to-pixoo": "ts-node ./src/pixoo/run.ts",
+    "start": "pm2 start ./src/server/index.ts --time",
     "dev": "yarn stop && yarn start --watch --no-daemon",
     "postinstall": "$(yarn bin)/pm2 install typescript",
-    "stop": "pm2 stop src/server/index.ts"
+    "stop": "pm2 stop ./src/server/index.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.12",
