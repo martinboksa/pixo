@@ -3,6 +3,7 @@ import {
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_DATE_WEEK_YEAR,
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_HOUR_MIN_SEC,
   DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_NET_TEXT_MESSAGE,
+  DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_TODAY_MAX_TEMP,
 } from "./commands";
 import { ipAddress, serverUrl } from "../common/constants";
 import "../common/ip";
@@ -12,23 +13,24 @@ const ids = {
   time: 2,
   date: 3,
   nameday: 1,
+  temp: 4,
 };
 
-const main = async () => {
+export const runPixooCommand = async () => {
   console.log("[Pixoo address]", ipAddress);
 
   await command.resetSending();
   console.log("Picture ID reset");
 
   await command.clear();
-  console.log("Text area cleared");
+  console.log("Texts area cleared");
 
   await drawImage("vader.png", [0, 0]);
 
   const items: command.DisplayItem[] = [
     {
       TextId: ids.nameday,
-      x: 0,
+      x: 1,
       y: 59,
       color: "#ffffff",
       dir: command.SCROLL_DIRECTION_RIGHT,
@@ -43,8 +45,8 @@ const main = async () => {
     },
     {
       TextId: ids.time,
-      x: 0,
-      y: 0,
+      x: 1,
+      y: 1,
       color: "#ffffff",
       dir: command.SCROLL_DIRECTION_RIGHT,
       font: 18,
@@ -56,8 +58,8 @@ const main = async () => {
     },
     {
       TextId: ids.date,
-      x: 0,
-      y: 10,
+      x: 1,
+      y: 7,
       color: "#ffffff",
       dir: command.SCROLL_DIRECTION_RIGHT,
       font: 18,
@@ -67,10 +69,21 @@ const main = async () => {
       speed: 100,
       type: DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_DATE_WEEK_YEAR,
     },
+    {
+      TextId: ids.temp,
+      x: 1,
+      y: 53,
+      color: "#ffffff",
+      dir: command.SCROLL_DIRECTION_RIGHT,
+      font: 18,
+      align: command.HORIZONTAL_TEXT_ALIGNMENT_LEFT,
+      TextWidth: 32,
+      Textheight: 5,
+      speed: 100,
+      type: DIVOOM_DISP_CUSTOM_DIAL_SUPPORT_TODAY_MAX_TEMP,
+    },
   ];
 
   await command.displayList(items);
   console.log("Items displayed");
 };
-
-main();

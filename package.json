@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "send-to-pixoo": "ts-node src/pixoo/index.ts",
+    "send-to-pixoo": "ts-node src/pixoo/run.ts",
     "start": "pm2 start src/server/index.ts --time",
     "dev": "yarn stop && yarn start --watch --no-daemon",
     "postinstall": "$(yarn bin)/pm2 install typescript",
