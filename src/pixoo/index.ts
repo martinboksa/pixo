@@ -31,7 +31,7 @@ export const runPixooCommand = async () => {
     {
       TextId: ids.nameday,
       x: 1,
-      y: 59,
+      y: 58,
       color: "#ffffff",
       dir: command.SCROLL_DIRECTION_RIGHT,
       font: 18,
@@ -72,7 +72,7 @@ export const runPixooCommand = async () => {
     {
       TextId: ids.temp,
       x: 1,
-      y: 53,
+      y: 52,
       color: "#ffffff",
       dir: command.SCROLL_DIRECTION_RIGHT,
       font: 18,
